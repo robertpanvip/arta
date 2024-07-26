@@ -1,23 +1,16 @@
-import {Group} from "./Group";
-import Stage from "./Stage";
-import {CanvasEvent} from "./EventTarget";
-import {bus} from "./Bus";
+import Group, {GroupConfig} from "./Group";
+import Context from "./Context";
+
+export interface ShapeConfig extends GroupConfig {
+
+}
 
 export default class Shape extends Group {
-    #stage: Stage | null = null;
 
-    constructor() {
-        super();
-        bus.addEventListener('stage::init', (e) => {
-            this.#stage = (e as CanvasEvent<Stage>).detail
-        })
+    constructor(config: Partial<ShapeConfig> = {}) {
+        super(config);
     }
-
-    render(context: CanvasRenderingContext2D) {
+    render(context: Context) {
         console.log(context)
-    }
-
-    getStage(): null | Stage {
-        return this.#stage
     }
 }

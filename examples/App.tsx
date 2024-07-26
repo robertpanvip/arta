@@ -1,34 +1,48 @@
-import {useState} from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useRef, useEffect} from 'react'
 import './App.scss'
+import Arta from '../src'
+
+/*const node = Arta.Group.fromJson({
+    type: "xx",
+    id: '1',
+    children: [
+        {
+            type: "xx",
+            id: '2',
+        },
+        {
+            type: "xx",
+            id: '3',
+        },
+        {
+            type: "xx",
+            id: '4',
+        }
+    ]
+})
+node.children[1].remove()
+console.log(node)*/
 
 function App() {
-    const [count, setCount] = useState(0);
-      
+    const ref = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        const stage = new Arta.Stage({
+            container: ref.current!
+        });
+        const rect = new Arta.Rect();
+        rect.style.fillStyle = 'blue';
+        rect.x = 0;
+        const rect2 = new Arta.Rect();
+        rect2.style.fillStyle = 'red'
+        rect2.x = 400;
+        console.log(rect);
+        stage.add(rect)
+        stage.add(rect2)
+    }, [])
     return (
-        <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo"/>
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo"/>
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        <div className='box' ref={ref}>
+
+        </div>
     )
 }
 
