@@ -10,23 +10,35 @@ type GroupJson = {
 }
 export type GroupConfig = {
     id?: string;
+    draggable?: boolean;
     x?: number,
     y?: number
 }
 export default class Group extends Transform {
     public randomColor: string = Color.getRandomColor();
     public id?: string;
+    public order: number = 0;
     public dataset = new Set();
     public parent: Group | null = null;
     public next: Group | null = null; //dfs下一个节点
     public previous: Group | null = null;//dfs上一个节点
     public nextSibling: Group | null = null;//dfs 兄弟下一个节点
     public previousSibling: Group | null = null;//dfs 兄弟前节点
+    public draggable: boolean = true;
+
     constructor(config: Partial<GroupConfig> = {}) {
         super();
         this.id = config.id;
+        this.draggable = config.draggable || true;
         this.x = config.x || 0;
         this.y = config.y || 0;
+        this.addEventListener('drag', (e) => {
+            const stage = this.getStage();
+            if (stage && this.draggable) {
+                this.x += e.dx;
+                this.y += e.dy;
+            }
+        })
     }
 
 
@@ -51,14 +63,10 @@ export default class Group extends Transform {
     }
 
 
-    getBBox(): RectangleLike {
-        //const stage = this.getStage();
-        return {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0
-        }
+    getBoundingClientRect(): RectangleLike {
+        const stage = this.getStage();
+        const color = Color.colorToRGBA(this.randomColor);
+        return stage?.context.getBoundingClientRect(color!) || {width: 0, height: 0, x: 0, y: 0}
     }
 
     isStage(): this is Stage {

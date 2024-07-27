@@ -1,6 +1,8 @@
 import Group from "./Group";
 import Shape from "./Shape";
 import Context from "./Context";
+import {PointLike} from "./interface";
+import {trapEvents} from "./Event";
 
 export type StageConfig = {
     container: HTMLElement
@@ -39,14 +41,26 @@ export default class Stage extends Group {
             })
         }
         flush();
+        trapEvents(canvas, this)
+    }
 
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const tx = (e.x - rect.x) * this.ratio;
-            const ty = (e.y - rect.y) * this.ratio;
-            const color = this.context.getOffscreenColorByPoint({x: tx, y: ty});
-            console.log(color,this.colorMap.get(color));
-        })
+
+    getIntersection(point: PointLike) {
+        const color = this.context.getOffscreenColorByPoint(point);
+        return this.colorMap.get(color) || this;
+    }
+
+    /**
+     *鼠标点击点 转换为相对于最近视口元素左上角的图形坐标
+     */
+    clientToGraph(point: PointLike): PointLike {
+        const rect = this.context.canvas.getBoundingClientRect();
+        const tx = point.x - rect.x;
+        const ty = point.y - rect.y;
+        return {
+            x: tx * this.ratio,
+            y: ty * this.ratio
+        }
     }
 
     isStage(): this is Stage {
@@ -66,20 +80,35 @@ export default class Stage extends Group {
         this.context.canvas.height = this.height * this.ratio; // 实际渲染像素
         this.context.offscreen.width = this.width * this.ratio;
         this.context.offscreen.height = this.height * this.ratio;
-        let next = this.next;
         this.colorMap.clear();
+        let order = 0;
+        let max = 0;
+        const groups: Group[] = [];
+        let next = this.next;
         while (next) {
-            if (next instanceof Shape) {
+            order++;
+            if (next.order == undefined) {
+                next.order = order
+            }
+            if (max < next.order) {
+                max = next.order
+            }
+            groups.push(next)
+            next = next.next;
+        }
+        this.order = max;
+
+        groups.sort((a, b) => a.order - b.order).forEach(item => {
+            if (item instanceof Shape) {
                 this.context.save();
                 this.context.resetTransform();
-                this.context.setTransform(next.getMatrix())
-                this.context.current = next;
-                this.colorMap.set(next.randomColor, next)
-                next.render(this.context);
+                this.context.setTransform(item.getMatrix())
+                this.context.current = item;
+                this.colorMap.set(item.randomColor, item)
+                item.render(this.context);
                 this.context.current = null;
                 this.context.restore();
             }
-            next = next.next;
-        }
+        })
     }
 }

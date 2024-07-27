@@ -1,6 +1,6 @@
 import Group from "./Group";
 import {Color, createFilledImageData} from "./Util";
-import {PointLike} from "./interface";
+import {PointLike, RGBA} from "./interface";
 
 export const ContextAttrs = [
     "direction",
@@ -138,7 +138,40 @@ export default class Context implements CanvasRenderingContext2D {
     getOffscreenColorByPoint(point: PointLike) {
         const imageData = this.#offscreenContext.getImageData(point.x, point.y, 1, 1);
         const data = imageData.data;
-        return `#${Color.rgbToHex(data[0],data[1],data[2])}`
+        return `#${Color.rgbToHex(data[0], data[1], data[2])}`
+    }
+
+    getBoundingClientRect(targetColor: RGBA) {
+        const imageData = this.#offscreenContext.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const {data, width, height} = imageData;
+        const {r, g, b} = targetColor;
+
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        let found = false;
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const index = (y * width + x) * 4;
+                if (data[index] === r && data[index + 1] === g && data[index + 2] === b) {
+                    found = true;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        if (!found) {
+            return null; // 目标颜色未找到
+        }
+
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX + 1,
+            height: maxY - minY + 1
+        };
     }
 
     arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterclockwise?: boolean): void {

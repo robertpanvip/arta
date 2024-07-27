@@ -16,7 +16,6 @@ export interface RectStyle extends CanvasStyle {
 }
 
 class Rect extends Path {
-    readonly #config: RectConfig;
     style: Partial<RectStyle> = {}
 
     constructor(props: RectConfig = {
@@ -24,7 +23,6 @@ class Rect extends Path {
         height: 200,
     }) {
         super({...props, d: ''});
-        this.#config = {...props};
         const {
             rx,
             ry,
@@ -41,10 +39,19 @@ class Rect extends Path {
         }
     }
 
+    getBoundingClientRect() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.style.width || 0,
+            height: this.style.height || 0
+        }
+    }
+
     getPath(): Path2D[] {
         const path = new Path2D();
-        const { rx, ry, width, height} = this.#config;
-        path.roundRect(0, 0, parseFloat(`${width}`), parseFloat(`${height}`), [rx, ry] as number[])
+        const {rx, ry, width, height} = this.style;
+        path.roundRect(0, 0, width!, height!, [rx, ry] as number[])
         path.closePath();
         return [path]
     }

@@ -49,7 +49,7 @@ export default class Transform extends EventTarget {
         return matrixToTranslation(this.getMatrix())
     }
 
-    getBBox(): RectangleLike {
+    getBoundingClientRect(): RectangleLike {
         return {
             x: 0,
             y: 0,
@@ -66,7 +66,7 @@ export default class Transform extends EventTarget {
             return matrixToRotation(this.getMatrix())
         }
         if (cx == null || cy == null) {
-            const bbox = this.getBBox()
+            const bbox = this.getBoundingClientRect()
             cx = bbox.width / 2 // eslint-disable-line
             cy = bbox.height / 2 // eslint-disable-line
         }

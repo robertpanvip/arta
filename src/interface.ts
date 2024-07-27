@@ -7,7 +7,10 @@ export type PointLike = {
     x: number,
     y: number
 }
-
+export type ScreenPointLike = {
+    screenX: number,
+    screenY: number
+}
 export type Scale = {
     sx: number,
     sy: number
