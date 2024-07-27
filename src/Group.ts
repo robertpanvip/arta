@@ -1,5 +1,5 @@
 import Transform from "./Transform";
-import {RectangleLike} from "./interface";
+import {CanvasStyle, RectangleLike} from "./interface";
 import type Stage from "./Stage";
 import {Color} from "./Util";
 
@@ -26,6 +26,9 @@ export default class Group extends Transform {
     public previousSibling: Group | null = null;//dfs 兄弟前节点
     public draggable: boolean = true;
 
+    style: Partial<CanvasStyle> = {
+        strokeStyle: '#000000'
+    }
     constructor(config: Partial<GroupConfig> = {}) {
         super();
         this.id = config.id;

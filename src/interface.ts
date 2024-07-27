@@ -7,6 +7,12 @@ export type PointLike = {
     x: number,
     y: number
 }
+export interface TangentPoint extends PointLike {
+    angle: number,
+    w: number,
+    word: string,
+    next: PointLike,
+}
 export type ScreenPointLike = {
     screenX: number,
     screenY: number

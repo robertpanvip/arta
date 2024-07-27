@@ -1,4 +1,4 @@
-import {MatrixLike, PointLike, RGB, RGBA, Rotation, Scale, Translation} from "./interface";
+import {MatrixLike, PointLike, RGB, RGBA, Rotation, Scale, TangentPoint, Translation} from "./interface";
 
 function deltaTransformPoint(matrix: DOMMatrix | MatrixLike, point: PointLike) {
     const dx = point.x * matrix.a + point.y * matrix.c
@@ -75,7 +75,10 @@ export function clamp(number: number, lower: number, upper: number) {
  * @param color - 指定的颜色，格式为 [red, green, blue, alpha]
  * @returns 新的 ImageData 对象
  */
-export function createFilledImageData(imageData: ImageData, color: [number, number, number, number]): ImageData {
+export function createFilledImageData(imageData: {
+    width: number,
+    height: number
+}, color: [number, number, number, number]): ImageData {
     const newImageData = new ImageData(imageData.width, imageData.height);
     const [red, green, blue, alpha] = color;
     const data = newImageData.data;
@@ -255,7 +258,7 @@ export class Color {
      * 颜色对象转化为16进制颜色字符串
      * @param colorObj 颜色对象
      */
-    static toHexString(colorObj:RGBA) {
+    static toHexString(colorObj: RGBA) {
         const {
             r, g, b
         } = colorObj;
@@ -524,8 +527,161 @@ export class Color {
     }
 }
 
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d', {willReadFrequently: true})!
+const svgPath: SVGPathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace Measure {
+    export function measureWidth(text: string, font: string) {
+        ctx.font = font;
+        const metrics = ctx.measureText(text);
+        return metrics.width
+    }
+
+    export function measureHeight(font: string) {
+        ctx.font = font;
+        const metrics = ctx.measureText('我');
+        return metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent
+    }
+
+    export function getTotalLength(d: string): number {
+        if (!d) {
+            return 0
+        }
+        svgPath.setAttribute('d', d);
+        return svgPath.getTotalLength();
+    }
+
+    export function getPointAtLength(d: string, len: number): PointLike {
+        svgPath.setAttribute('d', d);
+        return svgPath.getPointAtLength(len);
+    }
+
+    export function calculateVerticalPoint(x1: number, y1: number, x2: number, y2: number, dy: number) {
+        // 计算线段的中点坐标
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+
+        // 计算线段的长度
+        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+        // 计算单位向量
+        const unitX = (x2 - x1) / length;
+        const unitY = (y2 - y1) / length;
+
+        // 计算垂直线上的点的坐标
+        const x3 = midX - unitY * dy;
+        const y3 = midY + unitX * dy;
+
+        return {x: x3, y: y3};
+    }
+
+    export function svgPathToTangentPoints(
+        {d, x = 0, y = 0, text, font, dx = 0, dy = 0, spacing = 0}: {
+            d: string,
+            x: number,
+            y: number,
+            text: string,
+            font: string,
+            dx: number,
+            dy: number,
+            spacing: number
+        }
+    ): TangentPoint[] {
+        svgPath.setAttribute('d', d)
+        const total = svgPath.getTotalLength();
+        const [line] = renderText(text, font, total)
+        const points: TangentPoint[] = [];
+        let length = 0;
+        line.split('').forEach((word, idx) => {
+            const w = measureWidth(word, font!);
+            length += idx === 0 ? w / 2 + dx : w + spacing;
+            const point = svgPath.getPointAtLength(length);
+            const nextPoint = svgPath.getPointAtLength(length + 1);
+
+            const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
+            const _point = calculateVerticalPoint(point.x, point.y, nextPoint.x, nextPoint.y, dy)
+            points.push({
+                x: _point.x + x,
+                y: _point.y + y,
+                next: nextPoint,
+                w,
+                word,
+                angle
+            })
+        })
+        return points
+    }
+
+    export function genClosePath(d: string, font: string, dy: number = 0, x: number = 0, y: number = 0) {
+        svgPath.setAttribute('d', d);
+        const total = svgPath.getTotalLength();
+        const h = measureHeight(font!);
+        const vPoints: PointLike[] = []
+        const points: PointLike[] = [];
+        for (let len = 0; len < total; len = len + 1) {
+            const point = svgPath.getPointAtLength(len);
+            const nextPoint = svgPath.getPointAtLength(len + 1);
+
+            const vPoint = calculateVerticalPoint(point.x, point.y, nextPoint.x, nextPoint.y, dy + h)
+            points.push({
+                x: point.x + x,
+                y: point.y + y
+            })
+            vPoints.push({
+                x: vPoint.x + x,
+                y: vPoint.y + y
+            })
+        }
+        return points.concat(vPoints.reverse())
+    }
+
+    export function getBoundsFromPoints(points: PointLike[]) {
+        let minX = points[0].x;
+        let maxX = points[0].x;
+        let minY = points[0].y;
+        let maxY = points[0].y;
+        for (let i = 0; i < points.length; i = i + 1) {
+            const point = points[i];
+            minX = Math.min(minX, point.x)
+            maxX = Math.max(maxX, point.x)
+            minY = Math.min(minY, point.y)
+            maxY = Math.max(maxY, point.y)
+        }
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        }
+    }
+
+    export function renderText(text: string, font: string, maxWidth: number) {
+        const arr = text.split('');
+        const res: string[] = [];
+        let tmp = 0;
+        let tmpWord = '';
+        arr.forEach(word => {
+            const wordWidth = measureWidth(word, font)
+            tmp = tmp + wordWidth;
+            tmpWord = tmpWord + word
+            if (tmp + wordWidth > maxWidth) {
+                res.push(tmpWord);
+                tmp = 0;
+                tmpWord = ''
+            }
+        })
+        if (tmpWord) {
+            res.push(tmpWord);
+        }
+        return res
+    }
+}
+
 export default {
     Color,
+    Measure
 }
 
 export class Point {

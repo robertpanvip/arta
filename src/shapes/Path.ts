@@ -1,5 +1,5 @@
 import Shape, {ShapeConfig} from "../Shape";
-import Context, {ContextAttrs} from "../Context";
+import Context from "../Context";
 import {CanvasStyle} from "../interface";
 
 export interface PathConfig extends ShapeConfig, Partial<CanvasStyle> {
@@ -7,11 +7,10 @@ export interface PathConfig extends ShapeConfig, Partial<CanvasStyle> {
 }
 
 class Path extends Shape {
-    readonly path: Path2D;
+    path: Path2D;
     style: Partial<CanvasStyle> = {
         strokeStyle: '#000000'
     }
-
 
     constructor({d, ...rest}: PathConfig) {
         super(rest);
@@ -19,23 +18,18 @@ class Path extends Shape {
         this.path = d;
         this.style = {
             ...rest,
-            strokeStyle: '#000000'
+            strokeStyle: '#000000',
         }
     }
 
-    getPath(): Path2D | Path2D[] {
+    getShape(): Path2D | Path2D[] {
         return this.path
     }
 
     render(ctx: Context) {
 
-        const path = this.getPath();
+        const path = this.getShape();
         const paths = Array.isArray(path) ? path : [path];
-        ContextAttrs.forEach(attr => {
-            if (this.style[attr]) {
-                ctx[attr] = this.style[attr] as keyof typeof ctx[typeof attr];
-            }
-        });
 
         if (this.style.strokeStyle) {
             paths.forEach(path => {

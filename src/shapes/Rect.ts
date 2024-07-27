@@ -18,7 +18,7 @@ export interface RectStyle extends CanvasStyle {
 class Rect extends Path {
     style: Partial<RectStyle> = {}
 
-    constructor(props: RectConfig = {
+    constructor(props: Partial<RectConfig> = {
         width: 400,
         height: 200,
     }) {
@@ -48,7 +48,7 @@ class Rect extends Path {
         }
     }
 
-    getPath(): Path2D[] {
+    getShape(): Path2D[] {
         const path = new Path2D();
         const {rx, ry, width, height} = this.style;
         path.roundRect(0, 0, width!, height!, [rx, ry] as number[])

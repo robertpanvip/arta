@@ -64,7 +64,7 @@ export default class Context implements CanvasRenderingContext2D {
         this.#context = canvas.getContext('2d')!;
         this.offscreen = document.createElement('canvas');
 
-        this.#offscreenContext = this.offscreen.getContext('2d')!;
+        this.#offscreenContext = this.offscreen.getContext('2d', {willReadFrequently: true})!;
         this.direction = this.#context.direction;
         this.fillStyle = this.#context.fillStyle;
         this.filter = this.#context.filter;
@@ -116,16 +116,7 @@ export default class Context implements CanvasRenderingContext2D {
             })
         });
 
-    }
 
-    setWidth(width: number) {
-        this.canvas.width = width; // 实际渲染像素
-        this.offscreen.width = width; // 实际渲染像素
-    }
-
-    setHeight(height: number) {
-        this.canvas.height = height; // 实际渲染像素
-        this.offscreen.height = height; // 实际渲染像素
     }
 
     readonly #context: CanvasRenderingContext2D;
@@ -254,18 +245,47 @@ export default class Context implements CanvasRenderingContext2D {
     drawImage(image: CanvasImageSource, dx: number, dy: number, dw: number, dh: number): void;
     drawImage(image: CanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
     drawImage(image: CanvasImageSource, sdx: number, sdy: number, sdw?: number, sdh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void {
-        //todo
+        let source = image
+        if (this.current) {
+            if (this.current.randomColor) {
+                let width: number;
+                let height: number;
+                if (source instanceof VideoFrame) {
+                    width = source.displayWidth;
+                    height = source.displayHeight;
+                } else {
+                    if (source instanceof SVGImageElement) {
+                        width = source.width.baseVal.value;
+                        height = source.height.baseVal.value;
+                    } else {
+                        width = source.width;
+                        height = source.height;
+                    }
+                }
+                // 创建一个新的 canvas 元素
+                source = document.createElement('canvas');
+                // 设置 canvas 的宽高与 ImageData 相同
+                source.width = width;
+                source.height = height;
+                // 获取 2D 渲染上下文
+                const ctx = source.getContext('2d');
+                if (ctx) {
+                    ctx.fillStyle = this.current.randomColor
+                    ctx.fillRect(0, 0, width, height);
+                }
+            }
+        }
         if (arguments.length === 3) {
-            this.#offscreenContext.drawImage(image, sdx, sdy)
+            this.#offscreenContext.drawImage(source, sdx, sdy)
             this.#context.drawImage(image, sdx, sdy);
             return;
         }
         if (arguments.length === 5) {
-            this.#offscreenContext.drawImage(image, sdx, sdy, sdw!, sdh!)
+            this.#offscreenContext.drawImage(source, sdx, sdy, sdw!, sdh!)
             this.#context.drawImage(image, sdx, sdy, sdw!, sdh!);
             return;
         }
-        this.#offscreenContext.drawImage(image, sdx, sdy, sdw!, sdh!, dx!, dy!, dw!, dh!)
+        this.#offscreenContext.drawImage(source, sdx, sdy, sdw!, sdh!, dx!, dy!, dw!, dh!)
         this.#context.drawImage(image, sdx, sdy, sdw!, sdh!, dx!, dy!, dw!, dh!)
     }
 
@@ -379,7 +399,7 @@ export default class Context implements CanvasRenderingContext2D {
 
     resetTransform(): void {
         this.#offscreenContext.resetTransform()
-        this.#context.resetTransform()
+        this.#context.resetTransform();
     }
 
     restore(): void {

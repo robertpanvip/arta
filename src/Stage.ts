@@ -1,6 +1,6 @@
 import Group from "./Group";
 import Shape from "./Shape";
-import Context from "./Context";
+import Context, {ContextAttrs} from "./Context";
 import {PointLike} from "./interface";
 import {trapEvents} from "./Event";
 
@@ -29,7 +29,7 @@ export default class Stage extends Group {
 
         config.container.appendChild(canvas);
         this.context = new Context(canvas);
-        //config.container.appendChild(this.context.offscreen)
+        config.container.appendChild(this.context.offscreen)
         this.context.offscreen.width = canvas.width;
         this.context.offscreen.height = canvas.height;
         this.context.offscreen.style.width = canvas.style.width;
@@ -101,9 +101,19 @@ export default class Stage extends Group {
         groups.sort((a, b) => a.order - b.order).forEach(item => {
             if (item instanceof Shape) {
                 this.context.save();
+                this.context.current = item;
                 this.context.resetTransform();
                 this.context.setTransform(item.getMatrix())
-                this.context.current = item;
+                ContextAttrs.forEach(attr => {
+                    const value = item.style[attr] as keyof typeof this.context[typeof attr];
+                    if (attr === 'fillStyle') {
+                        item.style.fillStyle = value || 'transparent'
+                    }
+                    if (item.style[attr]) {
+                        this.context[attr] = value;
+                    }
+
+                });
                 this.colorMap.set(item.randomColor, item)
                 item.render(this.context);
                 this.context.current = null;
