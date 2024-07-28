@@ -26,6 +26,8 @@ export default class Group extends Transform {
     public previousSibling: Group | null = null;//dfs 兄弟前节点
     public draggable: boolean = true;
 
+    public ownerViewBox?:RectangleLike
+
     style: Partial<CanvasStyle> = {
         strokeStyle: '#000000'
     }
@@ -264,9 +266,8 @@ export default class Group extends Transform {
         if (lastSiblingChild) {
             lastSiblingChild.after(node)
         } else {
-            node.next = this.next;
-            node.previous = this;
-            this.next = node;
+            this.next=node;
+            node.previous=this;
             node.nextSibling = null;
             node.previousSibling = null;
         }

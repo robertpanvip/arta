@@ -3,7 +3,7 @@ import {Measure} from "../Util";
 import Context from "../Context";
 import {CanvasStyle, PointLike, TangentPoint} from "../interface";
 
-interface TextStyle extends CanvasStyle {
+export interface TextStyle extends CanvasStyle {
     cursor?: string;
     fontSize?: number;
     fontFamily?: string;
@@ -19,7 +19,7 @@ interface TextStyle extends CanvasStyle {
     dy?: number
 }
 
-type TextConfig = {
+export type TextConfig = {
     x?: number,
     y?: number,
     dx?: number;

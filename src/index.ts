@@ -9,7 +9,7 @@ import Line from './shapes/Line';
 import Polygon from './shapes/Polygon';
 import Image from './shapes/Image';
 import Text from './shapes/Text';
-
+import SVGParser from './svg';
 export const Arta = {
     Group,
     Shape,
@@ -21,6 +21,7 @@ export const Arta = {
     Polygon,
     Line,
     Image,
-    Text
+    Text,
+    SVGParser
 }
 export default Arta;

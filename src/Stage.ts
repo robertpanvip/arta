@@ -1,5 +1,4 @@
 import Group from "./Group";
-import Shape from "./Shape";
 import Context, {ContextAttrs} from "./Context";
 import {PointLike} from "./interface";
 import {trapEvents} from "./Event";
@@ -103,30 +102,37 @@ export default class Stage extends Group {
         this.order = max;
 
         groups.sort((a, b) => a.order - b.order).forEach(item => {
-            if (item instanceof Shape) {
-                this.context.save();
-                this.context.current = item;
-                this.context.resetTransform();
-                const transform = item.getRenderMatrix()
-                this.context.setTransform(transform)
-                ContextAttrs.forEach(attr => {
-                    const value = item.style[attr] as keyof typeof this.context[typeof attr];
-                    if (attr === 'fillStyle') {
-                        item.style.fillStyle = value || 'transparent'
-                    }
-                    if (attr === 'strokeStyle') {
-                        item.style.strokeStyle = value || '#000'
-                    }
-                    if (item.style[attr]) {
-                        this.context[attr] = value;
-                    }
-
-                });
-                this.colorMap.set(item.randomColor, item)
-                item.render(this.context);
-                this.context.current = null;
-                this.context.restore();
+            this.context.save();
+            if (item.ownerViewBox) {
+                const {x, y, width, height} = item.ownerViewBox;
+                // 定义裁剪路径
+                this.context.beginPath();
+                this.context.rect(x, y, width, height); // 定义一个矩形作为裁剪区域
+                this.context.clip(); // 应用裁剪
             }
+            this.context.current = item;
+            this.context.resetTransform();
+            const transform = item.getRenderMatrix()
+            this.context.setTransform(transform)
+            ContextAttrs.forEach(attr => {
+                const value = item.style[attr] as keyof typeof this.context[typeof attr];
+                if (attr === 'fillStyle') {
+                    item.style.fillStyle = value || 'transparent'
+                }
+                if (attr === 'strokeStyle') {
+                    item.style.strokeStyle = value || '#000'
+                }
+                if (item.style[attr]) {
+                    this.context[attr] = value;
+                }
+
+            });
+            this.colorMap.set(item.randomColor, item)
+            if ('render' in item && typeof item.render === 'function') {
+                item.render(this.context);
+            }
+            this.context.current = null;
+            this.context.restore();
         })
     }
 }

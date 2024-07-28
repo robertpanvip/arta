@@ -147,7 +147,7 @@ export interface PathConfig extends SVG.Shape {
     "path-length": number
 }
 
-export interface RectConfig extends SVG.Shape {
+export interface SVGRectConfig extends SVG.Shape {
     x: number;
     y: number;
     rx: number;
@@ -162,7 +162,7 @@ export interface CircleConfig extends SVG.Shape {
     r: number,
 }
 
-export interface LineConfig extends SVG.Shape {
+export interface SVGLineConfig extends SVG.Shape {
     x1: number,
     y1: number,
     x2: number,
@@ -180,7 +180,7 @@ export interface PolygonConfig extends SVG.Shape {
     points: string;
 }
 
-export interface FontConfig extends SVG.Core, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor {
+export interface SVGFontConfig extends SVG.Core, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor {
     points: string;
     x: number;
     y: number;
@@ -188,14 +188,14 @@ export interface FontConfig extends SVG.Core, SVG.Font, SVG.Paint, SVG.Color, SV
     transform: string;
 }
 
-export interface TextConfig extends SVG.Core, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor {
+export interface SVGTextConfig extends SVG.Core, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor {
     x: number;
     y: number;
     rotate: number;
     transform: string;
 }
 
-export interface TextPathConfig extends SVG.Core, SVG.TextContent, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor, SVG.XLinkRequired {
+export interface SVGTextPathConfig extends SVG.Core, SVG.TextContent, SVG.Font, SVG.Paint, SVG.Color, SVG.Opacity, SVG.Clip, SVG.Mask, SVG.Filter, SVG.Cursor, SVG.XLinkRequired {
     startOffset: string,
     textLength: string,
     lengthAdjust: "spacing" | "spacingAndGlyphs",

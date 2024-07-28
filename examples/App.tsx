@@ -117,8 +117,16 @@ function App() {
         //stage.add(image)
         // stage.add(line)
         //stage.add(circle)
-        //stage.add(rect)
-        stage.add(rect2);
+        //stage.add(rect);
+        const svg = new Arta.SVGParser({
+            from: `
+<svg width="500" height="200" viewBox="0 0 100 200" style="border: 1px solid #000000">
+  <rect x="20" y="10" width="200" height="100" style="stroke: #000000; fill:none;"/>
+</svg>
+`
+        });
+        console.log(svg)
+        stage.add(svg);
     }, [])
     return (
         <div className='box' ref={ref}>
