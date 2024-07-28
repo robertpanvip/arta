@@ -19,6 +19,7 @@ export function matrixToRotation(matrix: DOMMatrix | MatrixLike): Rotation {
     }
 }
 
+
 export function matrixToTranslation(
     matrix: DOMMatrix | MatrixLike
 ): Translation {
@@ -539,10 +540,10 @@ export namespace Measure {
         return metrics.width
     }
 
-    export function measureHeight(font: string) {
+    export function measureHeight(font: string, text: string = "我") {
         ctx.font = font;
-        const metrics = ctx.measureText('我');
-        return metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent
+        const metrics = ctx.measureText(text);
+        return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
     }
 
     export function getTotalLength(d: string): number {
@@ -617,13 +618,13 @@ export namespace Measure {
     export function genClosePath(d: string, font: string, dy: number = 0, x: number = 0, y: number = 0) {
         svgPath.setAttribute('d', d);
         const total = svgPath.getTotalLength();
-        const h = measureHeight(font!);
+
         const vPoints: PointLike[] = []
         const points: PointLike[] = [];
         for (let len = 0; len < total; len = len + 1) {
             const point = svgPath.getPointAtLength(len);
             const nextPoint = svgPath.getPointAtLength(len + 1);
-
+            const h = measureHeight(font!);
             const vPoint = calculateVerticalPoint(point.x, point.y, nextPoint.x, nextPoint.y, dy + h)
             points.push({
                 x: point.x + x,

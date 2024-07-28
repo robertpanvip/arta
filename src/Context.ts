@@ -110,7 +110,6 @@ export default class Context implements CanvasRenderingContext2D {
                             val = this.current.randomColor;
                         }
                     }
-
                     this.#offscreenContext[attr] = val;
                 }
             })
@@ -129,6 +128,9 @@ export default class Context implements CanvasRenderingContext2D {
     getOffscreenColorByPoint(point: PointLike) {
         const imageData = this.#offscreenContext.getImageData(point.x, point.y, 1, 1);
         const data = imageData.data;
+        if (data[3] === 0) {
+            return 'transparent'
+        }
         return `#${Color.rgbToHex(data[0], data[1], data[2])}`
     }
 

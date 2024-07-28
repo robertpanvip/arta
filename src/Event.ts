@@ -161,7 +161,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         dispatchEvent(evt)
     }
     EventNames.forEach(type => {
-        canvas.addEventListener(type, (e) => callback(e, true), true);
+        //canvas.addEventListener(type, (e) => callback(e, true), true);
         canvas.addEventListener(type, (e) => callback(e, false), false);
     })
 
@@ -187,13 +187,15 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
             dragging = current;
             dragging.order = that.order + 1;
             const ev = createEvent("dragstart", current, e, isCapture)
-            ev.dx = (e.x - tmp.x) * that.ratio;
-            ev.dy = (e.y - tmp.y) * that.ratio;
+            const scale = dragging.getScale()
+            ev.dx = (e.x - tmp.x)*scale.sx;
+            ev.dy = (e.y - tmp.y)*scale.sy;
             dispatchEvent(ev);
         } else if (dragging) {
             const ev = createEvent("drag", dragging, e, isCapture)
-            ev.dx = (e.x - tmp.x) * that.ratio;
-            ev.dy = (e.y - tmp.y) * that.ratio;
+            const scale = dragging.getScale()
+            ev.dx = (e.x - tmp.x)*scale.sx;
+            ev.dy = (e.y - tmp.y)*scale.sy;
             dispatchEvent(ev);
 
         }
@@ -205,8 +207,9 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
     function onMouseUpEvent(e: MouseEvent, isCapture: boolean) {
         if (dragging) {
             const ev = createEvent("dragend", dragging, e, isCapture);
-            ev.dx = (e.x - tmp.x) * that.ratio;
-            ev.dy = (e.y - tmp.y) * that.ratio;
+            const scale = dragging.getScale()
+            ev.dx = (e.x - tmp.x)*scale.sx ;
+            ev.dy = (e.y - tmp.y)*scale.sy;
             dispatchEvent(ev);
         }
         dragging = null;

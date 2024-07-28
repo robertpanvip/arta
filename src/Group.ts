@@ -1,5 +1,5 @@
 import Transform from "./Transform";
-import {CanvasStyle, RectangleLike} from "./interface";
+import {CanvasStyle, PointLike, RectangleLike} from "./interface";
 import type Stage from "./Stage";
 import {Color} from "./Util";
 
@@ -29,6 +29,7 @@ export default class Group extends Transform {
     style: Partial<CanvasStyle> = {
         strokeStyle: '#000000'
     }
+
     constructor(config: Partial<GroupConfig> = {}) {
         super();
         this.id = config.id;
@@ -41,6 +42,7 @@ export default class Group extends Transform {
                 this.x += e.dx;
                 this.y += e.dy;
             }
+            e.stopPropagation();
         })
     }
 
@@ -74,6 +76,40 @@ export default class Group extends Transform {
 
     isStage(): this is Stage {
         return false;
+    }
+
+    getRenderMatrix() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let temp: Group = this;
+        const arr: Group[] = [this];
+        while (temp.parent) {
+            arr.push(temp.parent)
+            temp = temp.parent;
+        }
+        return arr.reverse().reduce((p, c) => {
+            return p.multiply(c.getMatrix())
+        }, new DOMMatrix())
+    }
+
+    getRelativePosition(): PointLike {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }
+
+    getAbsolutePosition(): PointLike {
+        const stage = this.getStage();
+        if (!stage) {
+            return {x: 0, y: 0}
+        }
+        const matrix = this.getRenderMatrix();
+        const scale = stage.getScale();
+        // 变换后的顶点坐标
+        return {
+            x: matrix.e / scale.sx,
+            y: matrix.f / scale.sy,
+        };
     }
 
     getStage(): null | Stage {

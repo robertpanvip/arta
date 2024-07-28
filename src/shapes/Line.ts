@@ -53,14 +53,14 @@ class Line extends Shape {
         ctx.moveTo(0, 0);
         ctx.lineWidth = lineWidth;
         ctx.lineCap = this.style.lineCap! || 'butt';
-        const point = new Point(this.x2, this.y2).subtract(new Point(this.x, this.y));
+        const point = new Point(this.x2, this.y2).subtract(new Point(0,0));
         ctx.lineTo(point.x, point.y);
         ctx.stroke();
     }
 
 
     getBoundingClientRect(): RectangleLike {
-        const point = new Point(this.x2, this.y2).subtract(new Point(this.x, this.y));
+        const point = new Point(this.x2, this.y2).subtract(new Point(0, 0));
         let points = [
             {x: this.x, y: this.y},
             point,
@@ -96,7 +96,7 @@ class Line extends Shape {
     }
 
     getSquarePoints() {
-        const point = new Point(this.x2, this.y2).subtract(new Point(this.x, this.y));
+        const point = new Point(this.x2, this.y2).subtract(new Point(0, 0));
         const lineWidth = this.style?.strokeWidth || 1;
         const {x: x1, y: y1} = this;
         const {x: x2, y: y2} = point
@@ -125,7 +125,7 @@ class Line extends Shape {
     }
 
     getButtPoints() {
-        const point = new Point(this.x2, this.y2).subtract(new Point(this.x, this.y));
+        const point = new Point(this.x2, this.y2).subtract(new Point(0, 0));
         const lineWidth = this.style?.strokeWidth || 1;
         const {x: x1, y: y1} = this;
         const {x: x2, y: y2} = point
@@ -155,7 +155,7 @@ class Line extends Shape {
     getShape(): Path2D[] {
         const lineWidth = this.style?.strokeWidth || 1;
         const lineCap = this.style.lineCap || "butt"
-        const point = new Point(this.x2, this.y2).subtract(new Point(this.x, this.y));
+        const point = new Point(this.x2, this.y2).subtract(new Point(0, 0));
         const path = new Path2D();
         const {x: x1, y: y1} = this;
         const {x: x2, y: y2} = point

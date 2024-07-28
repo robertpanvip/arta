@@ -39,14 +39,14 @@ class Rect extends Path {
         }
     }
 
-    getBoundingClientRect() {
+  /*  getBoundingClientRect() {
         return {
             x: this.x,
             y: this.y,
             width: this.style.width || 0,
             height: this.style.height || 0
         }
-    }
+    }*/
 
     getShape(): Path2D[] {
         const path = new Path2D();

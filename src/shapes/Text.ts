@@ -13,7 +13,8 @@ interface TextStyle extends CanvasStyle {
     wrap?: 'wrap' | 'nowrap'
     color?: string | CanvasGradient | CanvasPattern;
     borderColor?: string;
-    linePadding?: number
+    linePadding?: number;
+    maxWidth?: number;
     dx?: number;
     dy?: number
 }
@@ -62,8 +63,6 @@ class Text extends Shape {
 
     name: string = "Text"
 
-    public maxWidth?: number
-
     public text: string = "";
     public path: string = ""
 
@@ -97,9 +96,12 @@ class Text extends Shape {
             strokeStyle: 'black',
             fillStyle: style?.color || 'black'
         };
-        this.maxWidth = this.maxWidth || Measure.getTotalLength(this.path);
         this.getClosePathPoints();
         this.getWordPoints();
+    }
+
+    get maxWidth() {
+        return this.style.maxWidth || Measure.getTotalLength(this.path)
     }
 
     getClosePathPoints() {
@@ -229,9 +231,9 @@ class Text extends Shape {
                 ctx.restore();
             }
         } else {
-            const h = Measure.measureHeight(font);
             this.calcTexts.forEach((text, index) => {
-                ctx!.fillText(text, this.style.dx || 0, h * index + (linePadding / 2)! * (index * 2 + 1))
+                const h = Measure.measureHeight(font, text);
+                ctx!.fillText(text, this.style.dx || 0, h * index + linePadding! * (index * 2 + 1))
             })
         }
         ctx.restore();
@@ -255,15 +257,14 @@ class Text extends Shape {
         }
         const stage = this.getStage()
         if (stage) {
-            return getComputedStyle(stage.context.canvas).font
+            const ctx = stage.getContext();
+            return ctx.font;
         }
         return ""
     }
 
     getShape(): Path2D[] {
         const font = this.getFont()
-        const h = Measure.measureHeight(font);
-        const height = (h + (this.style.linePadding || 0) * 2);
         const {x, y} = {x: 0, y: 0};
         if (this.path) {
             const closePathPoints = this.getClosePathPoints() || []
@@ -280,6 +281,8 @@ class Text extends Shape {
             return [path]
         }
         return this.calcTexts.flatMap((item, index) => {
+            const h = Measure.measureHeight(font, item);
+            const height = (h + (this.style.linePadding || 0) * 2);
             const width = Measure.measureWidth(item, font)
             const path = new Path2D();
             const cornerRadius = 0;

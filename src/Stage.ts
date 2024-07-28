@@ -75,6 +75,10 @@ export default class Stage extends Group {
         node.remove();
     }
 
+    getContext() {
+        return this.context
+    }
+
     render() {
         this.context.canvas.width = this.width * this.ratio; // 实际渲染像素
         this.context.canvas.height = this.height * this.ratio; // 实际渲染像素
@@ -103,11 +107,15 @@ export default class Stage extends Group {
                 this.context.save();
                 this.context.current = item;
                 this.context.resetTransform();
-                this.context.setTransform(item.getMatrix())
+                const transform = item.getRenderMatrix()
+                this.context.setTransform(transform)
                 ContextAttrs.forEach(attr => {
                     const value = item.style[attr] as keyof typeof this.context[typeof attr];
                     if (attr === 'fillStyle') {
                         item.style.fillStyle = value || 'transparent'
+                    }
+                    if (attr === 'strokeStyle') {
+                        item.style.strokeStyle = value || '#000'
                     }
                     if (item.style[attr]) {
                         this.context[attr] = value;

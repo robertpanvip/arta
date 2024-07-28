@@ -54,21 +54,28 @@ function App() {
         const rect2 = new Arta.Rect();
         rect2.style.fillStyle = 'red'
         rect2.style.rx = 20;
-        rect2.style.width = 800;
+        rect2.style.width = 400;
+
+        rect2.style.shadowOffsetX = 10;
+        rect2.style.shadowOffsetY = 10;
+        rect2.style.shadowBlur = 20;
+        rect2.style.shadowColor = 'rgba(0, 0, 0, 0.5)';
         rect2.x = 400;
-        rect2.addEventListener('click', (e) => {
-            console.time('xxxx')
-            rect2.getBoundingClientRect();
-            console.timeEnd('xxxx')
-            console.log('click', e)
+        rect2.addEventListener('click', () => {
+            const point = rect2.getAbsolutePosition();
+            console.log(point)
+            const rect = rect2.getBoundingClientRect();
+            console.log(rect)
+            //console.log('click', e)
         })
         const text = new Arta.Text({
-            text: "这是我的测试文字",
-            dy: 10,
+            text: "这是我的测试文字这是我的测试文字这是我的测试文字这是我的测试文字这是我的测试文字",
+            //dy: 10,
         });
         //text.path = 'M75,20 a1,1 0 0,0 100,0'
-        text.style.linePadding = 0;
-        text.style.spacing = 0
+        text.style.linePadding = 5;
+        text.style.spacing = 0;
+        text.style.maxWidth = 50
 
         /*const image = new Arta.Image({
             xlinkHref:'https://img.zcool.cn/community/0159645d5a2f40a80120695c8d54fc.jpg@1280w_1l_2o_100sh.jpg'
@@ -82,12 +89,12 @@ function App() {
             stroke: 'black',
             strokeWidth: 10,
         });
-        line.style.lineCap='round';
-        const circle = new Arta.Circle({
-            cx: 200,
-            cy: 200,
-            r: 100
-        });
+        line.style.lineCap = 'round';
+        /* const circle = new Arta.Circle({
+             cx: 200,
+             cy: 200,
+             r: 100
+         });*/
         /* rect2.addEventListener('mouseenter', (e) =>{
              console.log('rect2--mouseenter',e)
          })
@@ -101,16 +108,17 @@ function App() {
         stage.addEventListener('mousemove', (e) =>{
             console.log('stage-mousemove',e)
         })*/
-        console.log(rect);
-        text.addEventListener('click', (e) => {
-            console.log('xxx', e)
+        //console.log(rect);
+        text.addEventListener('click', () => {
+            console.log('xxx', rect2.x)
+            rect2.x -= 400;
         })
         //stage.add(text);
         //stage.add(image)
-        stage.add(line)
-        stage.add(circle)
+        // stage.add(line)
+        //stage.add(circle)
         //stage.add(rect)
-        //stage.add(rect2)
+        stage.add(rect2);
     }, [])
     return (
         <div className='box' ref={ref}>
