@@ -175,41 +175,54 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
     }
 
     function onMouseEvent(e: MouseEvent, isCapture: boolean) {
-        const position = that.clientToGraph(e);
-        const current = that.getIntersection(position);
 
-        if (current !== previous) {
-            dispatchEvent(createEvent("mouseleave", previous, e, isCapture));
-            dispatchEvent(createEvent("mouseenter", current, e, isCapture))
-        }
-        previous = current;
-        if (dragStart === current) {
-            dragging = current;
-            dragging.order = that.order + 1;
-            const ev = createEvent("dragstart", current, e, isCapture)
-            const scale = dragging.getScale()
-            ev.dx = (e.x - tmp.x);
-            ev.dy = (e.y - tmp.y);
-            dispatchEvent(ev);
-        } else if (dragging) {
+        if (dragging) {
             const ev = createEvent("drag", dragging, e, isCapture)
-            const scale = dragging.getScale()
             ev.dx = (e.x - tmp.x);
             ev.dy = (e.y - tmp.y);
+            if (dragging.draggable) {
+                dragging.x += ev.dx;
+                dragging.y += ev.dy;
+            }
             dispatchEvent(ev);
+            tmp.x = e.x;
+            tmp.y = e.y;
+        } else {
+            const position = that.clientToGraph(e);
+            const current = that.getIntersection(position);
 
+            if (current !== previous) {
+                dispatchEvent(createEvent("mouseleave", previous, e, isCapture));
+                dispatchEvent(createEvent("mouseenter", current, e, isCapture))
+            }
+            previous = current;
+            if (dragStart === current) {
+                dragging = current;
+                dragging.order = that.order + 1;
+                const ev = createEvent("dragstart", current, e, isCapture)
+                ev.dx = (e.x - tmp.x);
+                ev.dy = (e.y - tmp.y);
+                if (dragging.draggable) {
+                    dragging.x += ev.dx;
+                    dragging.y += ev.dy;
+                }
+                dispatchEvent(ev);
+                tmp.x = e.x;
+                tmp.y = e.y;
+            }
         }
-        tmp.x = e.x;
-        tmp.y = e.y;
         dragStart = null;
     }
 
     function onMouseUpEvent(e: MouseEvent, isCapture: boolean) {
         if (dragging) {
             const ev = createEvent("dragend", dragging, e, isCapture);
-            const scale = dragging.getScale()
-            ev.dx = (e.x - tmp.x) ;
+            ev.dx = (e.x - tmp.x);
             ev.dy = (e.y - tmp.y);
+            if (dragging.draggable) {
+                dragging.x += ev.dx;
+                dragging.y += ev.dy;
+            }
             dispatchEvent(ev);
         }
         dragging = null;

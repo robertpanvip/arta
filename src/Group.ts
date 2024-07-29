@@ -38,14 +38,6 @@ export default class Group extends Transform {
         this.draggable = config.draggable || true;
         this.x = config.x || 0;
         this.y = config.y || 0;
-        this.addEventListener('drag', (e) => {
-            const stage = this.getStage();
-            if (stage && this.draggable) {
-                this.x += e.dx;
-                this.y += e.dy;
-            }
-            e.stopPropagation();
-        })
     }
 
 
@@ -266,8 +258,8 @@ export default class Group extends Transform {
         if (lastSiblingChild) {
             lastSiblingChild.after(node)
         } else {
-            this.next=node;
-            node.previous=this;
+            this.next = node;
+            node.previous = this;
             node.nextSibling = null;
             node.previousSibling = null;
         }
