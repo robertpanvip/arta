@@ -1,7 +1,7 @@
-import {RectangleLike} from "../interface";
-import Shape from "../Shape";
-import Context from "../Context.ts";
-import {Point} from "../Util.ts";
+import {RectangleLike} from "../core/interface.ts";
+import Shape from "../core/Shape.ts";
+import Context from "../core/Context.ts";
+import {Point} from "../core/Util.ts";
 
 type LineConfig = {
     x1: number,

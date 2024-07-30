@@ -1,7 +1,7 @@
-import {CanvasEvent, CanvasEventMap, CanvasMouseEvent} from "./EventTarget";
-import Group from "./Group";
-import Stage from "./Stage";
-import {PointLike} from "./interface";
+import {CanvasEvent, CanvasEventMap, CanvasMouseEvent} from "./EventTarget.ts";
+import Group from "./Group.ts";
+import Stage from "./Stage.ts";
+import {PointLike} from "./interface.ts";
 
 const EventNames = [
     "fullscreenchange",

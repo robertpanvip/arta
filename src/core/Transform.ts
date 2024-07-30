@@ -1,6 +1,6 @@
-import EventTarget from "./EventTarget";
-import {clamp, matrixToRotation, matrixToScale, matrixToTranslation, Point} from "./Util";
-import {RectangleLike, Rotation, Scaling, Translation} from "./interface";
+import EventTarget from "./EventTarget.ts";
+import {clamp, matrixToRotation, matrixToScale, matrixToTranslation, Point} from "./Util.ts";
+import {RectangleLike, Rotation, Scaling, Translation} from "./interface.ts";
 
 export default class Transform extends EventTarget {
     #_matrix: DOMMatrix = new DOMMatrix();

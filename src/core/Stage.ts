@@ -1,7 +1,7 @@
-import Group from "./Group";
-import Context, {ContextAttrs} from "./Context";
-import {PointLike} from "./interface";
-import {trapEvents} from "./Event";
+import Group from "./Group.ts";
+import Context, {ContextAttrs} from "./Context.ts";
+import {PointLike} from "./interface.ts";
+import {trapEvents} from "./Event.ts";
 
 export type StageConfig = {
     container: HTMLElement
@@ -79,41 +79,41 @@ export default class Stage extends Group {
     }
 
     render() {
-        this.context.canvas.width = this.width * this.ratio; // 实际渲染像素
-        this.context.canvas.height = this.height * this.ratio; // 实际渲染像素
-        this.context.offscreen.width = this.width * this.ratio;
-        this.context.offscreen.height = this.height * this.ratio;
-        this.colorMap.clear();
+        const { width, height, ratio, context, colorMap, next } = this;
+        // 设置实际渲染像素
+        const renderWidth = width * ratio;
+        const renderHeight = height * ratio;
+        context.canvas.width = renderWidth; // 实际渲染像素
+        context.canvas.height = renderHeight; // 实际渲染像素
+        context.offscreen.width = renderWidth;
+        context.offscreen.height =renderHeight;
+        colorMap.clear();
         let order = 0;
         let max = 0;
         const groups: Group[] = [];
-        let next = this.next;
-        while (next) {
+        let current = next;
+        while (current) {
             order++;
-            if (next.order == undefined) {
-                next.order = order
-            }
-            if (max < next.order) {
-                max = next.order
-            }
-            groups.push(next)
-            next = next.next;
+            current.order ??= order;
+            max = Math.max(max, current.order);
+            groups.push(current);
+            current = current.next;
         }
         this.order = max;
-
-        groups.sort((a, b) => a.order - b.order).forEach(item => {
-            this.context.save();
+        groups.sort((a, b) => a.order - b.order);
+        groups.forEach(item => {
+            context.save();
             if (item.ownerViewBox) {
                 const {x, y, width, height} = item.ownerViewBox;
                 // 定义裁剪路径
-                this.context.beginPath();
-                this.context.rect(x, y, width, height); // 定义一个矩形作为裁剪区域
-                this.context.clip(); // 应用裁剪
+                context.beginPath();
+                context.rect(x, y, width, height); // 定义一个矩形作为裁剪区域
+                context.clip(); // 应用裁剪
             }
-            this.context.current = item;
-            this.context.resetTransform();
+            context.current = item;
+            context.resetTransform();
             const transform = item.getRenderMatrix()
-            this.context.setTransform(transform)
+            context.setTransform(transform)
             ContextAttrs.forEach(attr => {
                 const value = item.style[attr] as keyof typeof this.context[typeof attr];
                 if (attr === 'fillStyle') {
@@ -123,16 +123,15 @@ export default class Stage extends Group {
                     item.style.strokeStyle = value || '#000'
                 }
                 if (item.style[attr]) {
-                    this.context[attr] = value;
+                    context[attr] = value;
                 }
-
             });
-            this.colorMap.set(item.randomColor, item)
+            colorMap.set(item.randomColor, item)
             if ('render' in item && typeof item.render === 'function') {
-                item.render(this.context);
+                item.render(context);
             }
-            this.context.current = null;
-            this.context.restore();
+            context.current = null;
+            context.restore();
         })
     }
 }

@@ -1,6 +1,6 @@
 import CorePolygon from "../shapes/Polygon";
 import {PolygonConfig} from "./interface";
-import {PointLike} from "../interface.ts";
+import {PointLike} from "../core/interface.ts";
 
 function convertToPoints(...coordinates: number[]): PointLike[] {
     if (coordinates.length % 2 !== 0) {

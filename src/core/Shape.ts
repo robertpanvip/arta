@@ -1,5 +1,5 @@
-import Group, {GroupConfig} from "./Group";
-import Context from "./Context";
+import Group, {GroupConfig} from "./Group.ts";
+import Context from "./Context.ts";
 
 export interface ShapeConfig extends GroupConfig {
 

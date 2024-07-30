@@ -1,7 +1,7 @@
-import Transform from "./Transform";
-import {CanvasStyle, PointLike, RectangleLike} from "./interface";
-import type Stage from "./Stage";
-import {Color} from "./Util";
+import Transform from "./Transform.ts";
+import {CanvasStyle, PointLike, RectangleLike} from "./interface.ts";
+import type Stage from "./Stage.ts";
+import {Color} from "./Util.ts";
 
 type GroupJson = {
     type: string;
@@ -80,7 +80,7 @@ export default class Group extends Transform {
             arr.push(temp.parent)
             temp = temp.parent;
         }
-        return arr.reverse().reduce((p, c) => {
+        return arr.reduceRight((p, c) => {
             return p.multiply(c.getMatrix())
         }, new DOMMatrix())
     }

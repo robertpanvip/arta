@@ -1,5 +1,5 @@
 import Rect, {RectConfig} from "./Rect";
-import Context from "../Context.ts";
+import Context from "../core/Context.ts";
 
 export interface ImageConfig extends Partial<RectConfig> {
     xlinkHref?: string

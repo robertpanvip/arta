@@ -1,4 +1,4 @@
-import CoreGroup from "../Group";
+import CoreGroup from "../core/Group.ts";
 import {SVG as SVGType} from "./interface";
 
 export default class SVG extends CoreGroup {

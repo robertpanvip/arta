@@ -50,24 +50,39 @@ function App() {
         })
         rect.addEventListener('dragend', (e) => {
             console.log('dragend', e)
-        })
+        });
+
+        for (let i = 0; i < 2000; i++) {
+            const rect = new Arta.Rect();
+            rect.style.fillStyle = 'red'
+            rect.style.rx = 20;
+            rect.style.width = 20;
+            rect.x = i * 10;
+            stage.add(rect)
+        }
+        return;
         const rect2 = new Arta.Rect();
         rect2.style.fillStyle = 'red'
         rect2.style.rx = 20;
         rect2.style.width = 400;
 
-        rect2.style.shadowOffsetX = 10;
-        rect2.style.shadowOffsetY = 10;
-        rect2.style.shadowBlur = 20;
-        rect2.style.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        // rect2.style.shadowOffsetX = 10;
+        //rect2.style.shadowOffsetY = 10;
+        //rect2.style.shadowBlur = 20;
+        //rect2.style.shadowColor = 'rgba(0, 0, 0, 0.5)';
         rect2.x = 400;
         rect2.addEventListener('click', () => {
+            console.time('getAbsolutePosition')
             const point = rect2.getAbsolutePosition();
+            console.timeEnd('getAbsolutePosition')
             console.log(point)
+            console.time('getBoundingClientRect')
             const rect = rect2.getBoundingClientRect();
+            console.timeEnd('getBoundingClientRect')
             console.log(rect)
             //console.log('click', e)
-        })
+        });
+        rect2.scale(0.5)
         const text = new Arta.Text({
             text: "这是我的测试文字这是我的测试文字这是我的测试文字这是我的测试文字这是我的测试文字",
             //dy: 10,
@@ -117,16 +132,16 @@ function App() {
         //stage.add(image)
         // stage.add(line)
         //stage.add(circle)
-        //stage.add(rect);
-        const svg = new Arta.SVGParser({
-            from: `
-<svg width="500" height="200" viewBox="0 0 100 200" style="border: 1px solid #000000">
-  <rect x="20" y="10" width="200" height="100" style="stroke: #000000; fill:none;"/>
-</svg>
-`
-        });
-        console.log(svg)
-        stage.add(svg);
+        stage.add(rect2);
+        /* const svg = new Arta.SVGParser({
+             from: `
+ <svg width="1000" height="500" viewBox="0 0 500 200" style="border: 1px solid #000000">
+   <rect x="20" y="10" width="200" height="100" style="stroke: #000000; fill:none;"/>
+ </svg>
+ `
+         });
+         console.log(svg)*/
+        //stage.add(svg);
     }, [])
     return (
         <div className='box' ref={ref}>

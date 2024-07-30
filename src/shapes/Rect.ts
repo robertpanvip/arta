@@ -1,5 +1,5 @@
 import Path, {PathConfig} from "./Path";
-import {CanvasStyle} from "../interface";
+import {CanvasStyle} from "../core/interface.ts";
 
 export interface RectConfig extends Omit<PathConfig, 'd'> {
     width: number,

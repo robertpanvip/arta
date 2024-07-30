@@ -1,6 +1,6 @@
-import Shape, {ShapeConfig} from "../Shape";
-import Context from "../Context";
-import {CanvasStyle} from "../interface";
+import Shape, {ShapeConfig} from "../core/Shape.ts";
+import Context from "../core/Context.ts";
+import {CanvasStyle} from "../core/interface.ts";
 
 export interface PathConfig extends ShapeConfig, Partial<CanvasStyle> {
     d: string | Path2D,

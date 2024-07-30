@@ -1,4 +1,4 @@
-import {MatrixLike, PointLike, RGB, RGBA, Rotation, Scale, TangentPoint, Translation} from "./interface";
+import {MatrixLike, PointLike, RGB, RGBA, Rotation, Scale, TangentPoint, Translation} from "./interface.ts";
 
 function deltaTransformPoint(matrix: DOMMatrix | MatrixLike, point: PointLike) {
     const dx = point.x * matrix.a + point.y * matrix.c

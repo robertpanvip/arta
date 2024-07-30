@@ -1,6 +1,6 @@
-import type {PointLike} from "../interface";
+import type {PointLike} from "../core/interface.ts";
 import Path from "./Path";
-import Shape from "../Shape";
+import Shape from "../core/Shape.ts";
 
 export type PolygonOptions = {
     points: readonly PointLike[],

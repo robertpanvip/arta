@@ -1,7 +1,7 @@
 import SVGG from './SVGG';
 import SVGRect from './SVGRect';
 import SVGLine from './SVGLine';
-import Group from "../Group";
+import Group from "../core/Group.ts";
 import SVGCircle from "./SVGCircle";
 import SVGEllipse from "./SVGEllipse";
 import SVGPath from "./SVGPath";
@@ -9,7 +9,7 @@ import SVGPolygon from "./SVGPolygon";
 import CoreText from "../shapes/Text";
 import SVGText from "./SVGText";
 import SVG from "./SVG";
-import {RectangleLike} from "../interface.ts";
+import {RectangleLike} from "../core/interface.ts";
 
 type SVGConfig = {
     from: string;

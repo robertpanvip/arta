@@ -1,4 +1,4 @@
-import {RectangleLike} from "../interface";
+import {RectangleLike} from "../core/interface.ts";
 import Ellipse from "./Ellipse";
 
 type EllipseConfig = {

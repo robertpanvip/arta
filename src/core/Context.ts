@@ -1,6 +1,6 @@
-import Group from "./Group";
-import {Color, createFilledImageData} from "./Util";
-import {PointLike, RGBA} from "./interface";
+import Group from "./Group.ts";
+import {Color, createFilledImageData} from "./Util.ts";
+import {PointLike, RGBA} from "./interface.ts";
 
 export const ContextAttrs = [
     "direction",
