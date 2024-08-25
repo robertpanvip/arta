@@ -2,7 +2,8 @@ import Group from "./Group";
 import {Color, createFilledImageData} from "./Util";
 import {PointLike, RGBA} from "./interface";
 import Path2D, {PathContext} from "./Path2D";
-
+// 创建一个新的 canvas 元素
+const tempSource = document.createElement('canvas');
 export const ContextAttrs = [
     "direction",
     'fillStyle',
@@ -274,8 +275,7 @@ export default class Context implements CanvasRenderingContext2D {
                         height = source.height;
                     }
                 }
-                // 创建一个新的 canvas 元素
-                source = document.createElement('canvas');
+                source = tempSource
                 // 设置 canvas 的宽高与 ImageData 相同
                 source.width = width;
                 source.height = height;

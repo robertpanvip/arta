@@ -37,19 +37,20 @@ function App() {
     const addClickEvent = (item: Group) => {
         stageRef.current!.add(item)
         item.addEventListener('click', () => {
+            console.time('click')
             console.time('getAbsolutePosition')
             const point = item.getAbsolutePosition();
 
             console.timeEnd('getAbsolutePosition')
             console.log(point)
-            console.time('getBoundingClientRect')
+            /*console.time('getBoundingClientRect')
             const rect = item._getBoundingClientRect();
             console.timeEnd('getBoundingClientRect')
-            console.log(rect)
+            console.log(rect)*/
 
             console.time('getBBox')
             console.log('xx', item.shape)
-            const bbox = item.getBBox();
+            const bbox = item.getGraphBBox();
             console.timeEnd('getBBox')
             console.log(bbox)
             const d = item.shape.toString();
@@ -61,12 +62,18 @@ function App() {
                 d: data
             })
             console.log(path)
-            const box = new Arta.Rect({
-                ...bbox,
-            });
+            const box = new Arta.Rect(
+                {
+                    width: bbox.width,
+                    height: bbox.height
+                }
+            );
+            box.x = bbox.x
+            box.y = bbox.y
             //stageRef.current!.add(path)
             stageRef.current!.add(box)
             stageRef.current!.flush();
+            console.timeEnd('click')
             //console.log('click', e)
         });
     }
@@ -129,6 +136,7 @@ function App() {
     const handleRect = () => {
         stageRef.current!.clear()
         const item = new Arta.Rect();
+        item.x = 100
         addClickEvent(item)
     }
     const handleText = () => {

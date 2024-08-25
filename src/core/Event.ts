@@ -147,18 +147,36 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
     }
 
     const callback = (e: Event, isCapture: boolean) => {
+        const time = performance.now();
 
         let group: Group = that;
+        const t1 = performance.now();
         const point = getMousePoint(e);
+        const t2 = performance.now();
+        let t3 = 0
+        let t4 = 0
+        let t5 = 0
         if (point) {
-            const position = that.clientToGraph({
+            t3 = performance.now();
+            const position = that.getPointerPosition({
                 x: point.x,
                 y: point.y,
             });
+            t4 = performance.now();
             group = that.getIntersection(position);
+            t5 = performance.now();
         }
         const evt = createEvent(e.type as keyof CanvasEventMap, group || null, e, isCapture);
+        const t6 = performance.now();
         dispatchEvent(evt)
+        const env = performance.now();
+        if (env - time > 10) {
+            console.log('env', env - time)
+            console.log('getMousePoint', t2 - t1)
+            console.log('getPointerPosition', t4 - t3)
+            console.log('getIntersection', t5 - t4)
+            console.log('createEvent', t6 - t5)
+        }
     }
     EventNames.forEach(type => {
         //canvas.addEventListener(type, (e) => callback(e, true), true);
@@ -188,7 +206,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
             tmp.x = e.x;
             tmp.y = e.y;
         } else {
-            const position = that.clientToGraph(e);
+            const position = that.getPointerPosition(e);
             const current = that.getIntersection(position);
 
             if (current !== previous) {
@@ -232,7 +250,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
     }
 
     function onMouseDownEvent(e: MouseEvent) {
-        const position = that.clientToGraph(e);
+        const position = that.getPointerPosition(e);
         dragStart = that.getIntersection(position);
         tmp.x = e.x;
         tmp.y = e.y;

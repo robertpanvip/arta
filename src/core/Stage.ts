@@ -50,17 +50,22 @@ export default class Stage extends Group {
         return this.colorMap.get(color) || this;
     }
 
-    /**
-     *鼠标点击点 转换为相对于最近视口元素左上角的图形坐标
-     */
-    clientToGraph(point: PointLike): PointLike {
+    getPointerPosition(point: PointLike): PointLike {
         const rect = this.context.canvas.getBoundingClientRect();
         const tx = point.x - rect.x;
         const ty = point.y - rect.y;
-        return {
-            x: tx * this.ratio,
-            y: ty * this.ratio
-        }
+        return this.clientToGraph({
+            x: tx,
+            y: ty
+        })
+    }
+    //将鼠标位置 相对于canvas 转为canvas内部的坐标
+    clientToGraph(point: PointLike){
+        return  this.matrix.transformPoint(point)
+    }
+
+    graphToClient(point: PointLike): PointLike {
+        return  this.matrix.inverse().transformPoint(point)
     }
 
     isStage(): this is Stage {

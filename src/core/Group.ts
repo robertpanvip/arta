@@ -78,6 +78,27 @@ export default class Group extends Transform {
         return this.shape.getBBox() || {width: 0, height: 0, x: 0, y: 0}
     }
 
+    getGraphBBox(): RectangleLike {
+        const bbox = this.getBBox();
+        const stage = this.getStage();
+        const _rb = {
+            x: bbox.width + bbox.x,
+            y: bbox.height + bbox.y,
+        }
+
+        if (stage) {
+            const lt = stage.graphToClient(bbox);
+            const rb = stage.graphToClient(_rb);
+            return {
+                x: lt.x,
+                y: lt.y,
+                width: rb.x - lt.x,
+                height: rb.y - lt.y,
+            }
+        }
+        return bbox;
+    }
+
     isStage(): this is Stage {
         return false;
     }
