@@ -72,13 +72,18 @@ function App() {
     }
     const handleEllipse = () => {
         stageRef.current!.clear()
-        const item = new Arta.Rect();
+        const item = new Arta.Ellipse({
+            rx: 80,
+            ry: 50,
+            cx: 200,
+            cy: 200
+        });
         addClickEvent(item)
     }
     const handleImage = () => {
         stageRef.current!.clear()
         const item = new Arta.Image({
-            xlinkHref:'https://img.zcool.cn/community/0159645d5a2f40a80120695c8d54fc.jpg@1280w_1l_2o_100sh.jpg'
+            xlinkHref: 'https://img.zcool.cn/community/0159645d5a2f40a80120695c8d54fc.jpg@1280w_1l_2o_100sh.jpg'
         })
         addClickEvent(item)
     }
@@ -98,7 +103,7 @@ function App() {
     const handlePath = () => {
         stageRef.current!.clear()
         const item = new Arta.Path({
-            d:'M 50 50 L 150 50 L 100 150 Z'
+            d: 'M 50 50 L 150 50 L 100 150 Z'
         });
         addClickEvent(item)
     }
