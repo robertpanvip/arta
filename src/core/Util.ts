@@ -534,16 +534,22 @@ const svgPath: SVGPathElement = document.createElementNS('http://www.w3.org/2000
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Measure {
-    export function measureWidth(text: string, font: string) {
+    export function measureSize(text: string, font: string) {
         ctx.font = font;
-        const metrics = ctx.measureText(text);
-        return metrics.width
+        const metrics = ctx.measureText(text)
+        return {
+            width: metrics.width,
+            height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+        }
+    }
+
+    export function measureWidth(text: string, font: string) {
+        return measureSize(text, font).width
     }
 
     export function measureHeight(font: string, text: string = "我") {
-        ctx.font = font;
-        const metrics = ctx.measureText(text);
-        return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+        const metrics = measureSize(text, font)
+        return metrics.height
     }
 
     export function getTotalLength(d: string): number {

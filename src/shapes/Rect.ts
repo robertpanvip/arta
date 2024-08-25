@@ -1,4 +1,5 @@
 import Path, {PathConfig} from "./Path";
+import Path2D from "../core/Path2D.ts";
 import {CanvasStyle} from "../core/interface.ts";
 
 export interface RectConfig extends Omit<PathConfig, 'd'> {
@@ -52,7 +53,6 @@ class Rect extends Path {
         const path = new Path2D();
         const {rx, ry, width, height} = this.style;
         path.roundRect(0, 0, width!, height!, [rx, ry] as number[])
-        path.closePath();
         return [path]
     }
 }

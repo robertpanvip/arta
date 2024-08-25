@@ -23,6 +23,8 @@
       {
         "allowConstantExport": true
       }
-    ]
+    ],
+    "no-case-declarations": 0,
+    "@typescript-eslint/no-loss-of-precision": 0
   }
 }

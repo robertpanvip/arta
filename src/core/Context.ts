@@ -1,6 +1,7 @@
-import Group from "./Group.ts";
-import {Color, createFilledImageData} from "./Util.ts";
-import {PointLike, RGBA} from "./interface.ts";
+import Group from "./Group";
+import {Color, createFilledImageData} from "./Util";
+import {PointLike, RGBA} from "./interface";
+import Path2D, {PathContext} from "./Path2D";
 
 export const ContextAttrs = [
     "direction",
@@ -124,6 +125,7 @@ export default class Context implements CanvasRenderingContext2D {
     public current: Group | null = null
     readonly canvas: HTMLCanvasElement;
     readonly offscreen: HTMLCanvasElement;
+    public path: PathContext = new PathContext()
 
     getOffscreenColorByPoint(point: PointLike) {
         const imageData = this.#offscreenContext.getImageData(point.x, point.y, 1, 1);
@@ -170,26 +172,31 @@ export default class Context implements CanvasRenderingContext2D {
     arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterclockwise?: boolean): void {
         this.#offscreenContext.arc(x, y, radius, startAngle, endAngle, counterclockwise);
         this.#context.arc(x, y, radius, startAngle, endAngle, counterclockwise);
+        this.path.arc(x, y, radius, startAngle, endAngle, counterclockwise);
     }
 
     arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void {
         this.#offscreenContext.arcTo(x1, y1, x2, y2, radius)
         this.#context.arcTo(x1, y1, x2, y2, radius)
+        this.path.arcTo(x1, y1, x2, y2, radius)
     }
 
     beginPath(): void {
         this.#offscreenContext.beginPath();
         this.#context.beginPath();
+        this.path.moveTo(0, 0);
     }
 
     bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void {
         this.#offscreenContext.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
         this.#context.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
+        this.path.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
         this.#offscreenContext.clearRect(x, y, w, h)
         this.#context.clearRect(x, y, w, h)
+        this.path.clearRect(x, y, w, h)
     }
 
     clip(fillRule?: CanvasFillRule): void;
@@ -199,11 +206,14 @@ export default class Context implements CanvasRenderingContext2D {
         this.#offscreenContext.clip(...arguments)
         // eslint-disable-next-line prefer-rest-params
         this.#context.clip(...arguments)
+        // eslint-disable-next-line prefer-rest-params
+        this.path.clip(...arguments)
     }
 
     closePath(): void {
         this.#offscreenContext.closePath()
         this.#context.closePath()
+        this.path.closePath()
     }
 
     createConicGradient(startAngle: number, x: number, y: number): CanvasGradient {
@@ -280,20 +290,27 @@ export default class Context implements CanvasRenderingContext2D {
         if (arguments.length === 3) {
             this.#offscreenContext.drawImage(source, sdx, sdy)
             this.#context.drawImage(image, sdx, sdy);
+            this.#offscreenContext.drawImage(source, sdx, sdy);
+            const _source = source as HTMLCanvasElement
+            this.path.rect(sdx, sdy, _source.width, _source.height)
             return;
         }
         if (arguments.length === 5) {
             this.#offscreenContext.drawImage(source, sdx, sdy, sdw!, sdh!)
             this.#context.drawImage(image, sdx, sdy, sdw!, sdh!);
+            this.#offscreenContext.drawImage(source, sdx, sdy, sdw!, sdh!)
+            this.path.rect(sdx, sdy, sdw!, sdh!)
             return;
         }
         this.#offscreenContext.drawImage(source, sdx, sdy, sdw!, sdh!, dx!, dy!, dw!, dh!)
         this.#context.drawImage(image, sdx, sdy, sdw!, sdh!, dx!, dy!, dw!, dh!)
+        this.path.rect(sdx, sdy, sdw!, sdh!)
     }
 
     ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, counterclockwise?: boolean): void {
         this.#offscreenContext.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterclockwise)
         this.#context.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterclockwise)
+        this.path.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterclockwise)
     }
 
     fill(fillRule?: CanvasFillRule): void;
@@ -303,16 +320,23 @@ export default class Context implements CanvasRenderingContext2D {
         this.#offscreenContext.fill(...arguments)
         // eslint-disable-next-line prefer-rest-params
         this.#context.fill(...arguments)
+        // eslint-disable-next-line prefer-rest-params
+        const path = arguments[0];
+        if (path instanceof Path2D) {
+            this.path.addPath(path)
+        }
     }
 
     fillRect(x: number, y: number, w: number, h: number): void {
         this.#offscreenContext.fillRect(x, y, w, h)
         this.#context.fillRect(x, y, w, h)
+        this.path.rect(x, y, w, h)
     }
 
     fillText(text: string, x: number, y: number, maxWidth?: number): void {
         this.#offscreenContext.fillText(text, x, y, maxWidth)
         this.#context.fillText(text, x, y, maxWidth)
+        this.path.fillText(this.font, text, x, y, maxWidth)
     }
 
     getContextAttributes(): CanvasRenderingContext2DSettings {
@@ -352,6 +376,7 @@ export default class Context implements CanvasRenderingContext2D {
     lineTo(x: number, y: number): void {
         this.#offscreenContext.lineTo(x, y)
         this.#context.lineTo(x, y)
+        this.path.lineTo(x, y)
     }
 
     measureText(text: string): TextMetrics {
@@ -361,6 +386,7 @@ export default class Context implements CanvasRenderingContext2D {
     moveTo(x: number, y: number): void {
         this.#offscreenContext.moveTo(x, y)
         this.#context.moveTo(x, y)
+        this.path.moveTo(x, y)
     }
 
     putImageData(imagedata: ImageData, dx: number, dy: number): void;
@@ -378,40 +404,50 @@ export default class Context implements CanvasRenderingContext2D {
         if (arguments.length <= 3) {
             this.#offscreenContext.putImageData(imageData, dx, dy)
             this.#context.putImageData(imagedata, dx, dy)
+            this.#context.putImageData(imagedata, dx, dy)
+            this.path.rect(dx, dy, imagedata.width!, imagedata.height!)
             return
         }
         this.#offscreenContext.putImageData(imageData, dx, dy, dirtyX!, dirtyY!, dirtyWidth!, dirtyHeight!)
         this.#context.putImageData(imagedata, dx, dy, dirtyX!, dirtyY!, dirtyWidth!, dirtyHeight!)
+        this.path.rect(dx, dy, dirtyWidth!, dirtyHeight!)
+
     }
 
     quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void {
         this.#offscreenContext.quadraticCurveTo(cpx, cpy, x, y)
         this.#context.quadraticCurveTo(cpx, cpy, x, y)
+        this.path.quadraticCurveTo(cpx, cpy, x, y)
     }
 
     rect(x: number, y: number, w: number, h: number): void {
         this.#offscreenContext.rect(x, y, w, h)
         this.#context.rect(x, y, w, h)
+        this.path.rect(x, y, w, h)
     }
 
     reset(): void {
         this.#offscreenContext.reset()
         this.#context.reset()
+        this.path.reset()
     }
 
     resetTransform(): void {
         this.#offscreenContext.resetTransform()
         this.#context.resetTransform();
+        this.path.resetTransform();
     }
 
     restore(): void {
         this.#offscreenContext.restore()
         this.#context.restore()
+        this.path.restore()
     }
 
     rotate(angle: number): void {
         this.#offscreenContext.rotate(angle)
         this.#context.rotate(angle)
+        this.path.rotate(angle)
     }
 
     roundRect(x: number, y: number, w: number, h: number, radii?: number | DOMPointInit | (number | DOMPointInit)[]): void;
@@ -419,16 +455,19 @@ export default class Context implements CanvasRenderingContext2D {
     roundRect(x: number, y: number, w: number, h: number, radii?: number | DOMPointInit | (number | DOMPointInit)[] | Iterable<number | DOMPointInit>): void {
         this.#offscreenContext.roundRect(x, y, w, h, radii)
         this.#context.roundRect(x, y, w, h, radii)
+        this.path.roundRect(x, y, w, h, radii)
     }
 
     save(): void {
         this.#offscreenContext.save();
         this.#context.save();
+        this.path.save();
     }
 
     scale(x: number, y: number): void {
         this.#offscreenContext.scale(x, y);
         this.#context.scale(x, y);
+        this.path.scale(x, y);
     }
 
     setLineDash(segments: number[]): void;
@@ -445,6 +484,8 @@ export default class Context implements CanvasRenderingContext2D {
         this.#offscreenContext.setTransform(...arguments);
         // eslint-disable-next-line prefer-rest-params
         this.#context.setTransform(...arguments);
+        // eslint-disable-next-line prefer-rest-params
+        this.path.setTransform(...arguments);
     }
 
     stroke(): void;
@@ -457,25 +498,30 @@ export default class Context implements CanvasRenderingContext2D {
         }
         this.#offscreenContext.stroke(path as Path2D);
         this.#context.stroke(path as Path2D);
+        this.path.addPath(path as Path2D)
     }
 
     strokeRect(x: number, y: number, w: number, h: number): void {
         this.#offscreenContext.strokeRect(x, y, w, h)
         this.#context.strokeRect(x, y, w, h)
+        this.path.rect(x - this.lineWidth / 2, y - this.lineWidth / 2, w + this.lineWidth, h + this.lineWidth)
     }
 
     strokeText(text: string, x: number, y: number, maxWidth?: number): void {
         this.#offscreenContext.strokeText(text, x, y, maxWidth)
-        this.#context.strokeText(text, x, y, maxWidth)
+        this.#context.strokeText(text, x, y, maxWidth);
+        this.path.fillText(this.font, text, x, y, maxWidth)
     }
 
     transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
         this.#offscreenContext.transform(a, b, c, d, e, f)
         this.#context.transform(a, b, c, d, e, f)
+        this.path.transform(a, b, c, d, e, f)
     }
 
     translate(x: number, y: number): void {
         this.#offscreenContext.translate(x, y)
         this.#context.translate(x, y)
+        this.path.translate(x, y)
     }
 }

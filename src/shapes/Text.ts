@@ -1,7 +1,8 @@
-import Shape from "../core/Shape.ts";
-import {Measure} from "../core/Util.ts";
-import Context from "../core/Context.ts";
-import {CanvasStyle, PointLike, TangentPoint} from "../core/interface.ts";
+import Shape from "../core/Shape";
+import {Measure} from "../core/Util";
+import Context from "../core/Context";
+import {CanvasStyle, PointLike, TangentPoint} from "../core/interface";
+import Path2D from "../core/Path2D";
 
 export interface TextStyle extends CanvasStyle {
     cursor?: string;

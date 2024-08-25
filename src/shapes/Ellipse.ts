@@ -1,5 +1,6 @@
 import {RectangleLike} from "../core/interface.ts";
 import Path from "./Path";
+import Path2D from '../core/Path2D.ts'
 
 type EllipseConfig = {
     cx: number,

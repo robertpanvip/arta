@@ -1,7 +1,8 @@
-import Transform from "./Transform.ts";
-import {CanvasStyle, PointLike, RectangleLike} from "./interface.ts";
-import type Stage from "./Stage.ts";
-import {Color} from "./Util.ts";
+import Transform from "./Transform";
+import {CanvasStyle, PointLike, RectangleLike} from "./interface";
+import type Stage from "./Stage";
+import {Color} from "./Util";
+import {PathContext} from "./Path2D";
 
 type GroupJson = {
     type: string;
@@ -16,6 +17,7 @@ export type GroupConfig = {
 }
 export default class Group extends Transform {
     public randomColor: string = Color.getRandomColor();
+    public shape = new PathContext();
     public id?: string;
     public order: number = 0;
     public dataset = new Set();
@@ -26,7 +28,7 @@ export default class Group extends Transform {
     public previousSibling: Group | null = null;//dfs 兄弟前节点
     public draggable: boolean = true;
 
-    public ownerViewBox?:RectangleLike
+    public ownerViewBox?: RectangleLike
 
     style: Partial<CanvasStyle> = {
         strokeStyle: '#000000'
@@ -62,10 +64,18 @@ export default class Group extends Transform {
     }
 
 
-    getBoundingClientRect(): RectangleLike {
+    _getBoundingClientRect(): RectangleLike {
         const stage = this.getStage();
         const color = Color.colorToRGBA(this.randomColor);
         return stage?.context.getBoundingClientRect(color!) || {width: 0, height: 0, x: 0, y: 0}
+    }
+
+    getBoundingClientRect() {
+        return this.getBBox()
+    }
+
+    getBBox(): RectangleLike {
+        return this.shape.getBBox() || {width: 0, height: 0, x: 0, y: 0}
     }
 
     isStage(): this is Stage {
@@ -93,17 +103,12 @@ export default class Group extends Transform {
     }
 
     getAbsolutePosition(): PointLike {
-        const stage = this.getStage();
-        if (!stage) {
-            return {x: 0, y: 0}
-        }
         const matrix = this.getRenderMatrix();
-        const scale = stage.getScale();
         // 变换后的顶点坐标
-        return {
-            x: matrix.e / scale.sx,
-            y: matrix.f / scale.sy,
-        };
+        return matrix.transformPoint({
+            x: matrix.e,
+            y: matrix.f
+        });
     }
 
     getStage(): null | Stage {

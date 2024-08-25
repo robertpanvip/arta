@@ -117,3 +117,35 @@ export interface RGB {
 export interface RGBA extends RGB {
     a: number;
 }
+
+export interface GetSet<Type, This> {
+    (): Type;
+    (v: Type): This;
+}
+
+export interface PathSegment {
+    command:
+        | 'm'
+        | 'M'
+        | 'l'
+        | 'L'
+        | 'v'
+        | 'V'
+        | 'h'
+        | 'H'
+        | 'z'
+        | 'Z'
+        | 'c'
+        | 'C'
+        | 'q'
+        | 'Q'
+        | 't'
+        | 'T'
+        | 's'
+        | 'S'
+        | 'a'
+        | 'A';
+    start: PointLike;
+    points: number[];
+    pathLength: number;
+}

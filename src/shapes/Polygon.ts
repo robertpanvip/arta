@@ -1,6 +1,7 @@
 import type {PointLike} from "../core/interface.ts";
 import Path from "./Path";
 import Shape from "../core/Shape.ts";
+import Path2D from '../core/Path2D.ts'
 
 export type PolygonOptions = {
     points: readonly PointLike[],
@@ -17,8 +18,8 @@ const vm = new WeakMap<Shape, PrivateScope>()
 
 class Polygon extends Path {
 
-    constructor(options: Partial<PolygonOptions> = {points: [], close: true}) {
-        const _options = {points: [], close: true, ...options}
+    constructor(options: Partial<PolygonOptions> = {points: [], close: false}) {
+        const _options = {points: [], close: false, ...options}
         super({
             d: getPathStrFromPoints(_options.points, _options.close)
         });

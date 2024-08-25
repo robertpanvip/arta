@@ -1,6 +1,6 @@
 import Rect, {RectConfig} from "./Rect";
-import Context from "../core/Context.ts";
-
+import Context from "../core/Context";
+import Path2D from "../core/Path2D";
 export interface ImageConfig extends Partial<RectConfig> {
     xlinkHref?: string
 }

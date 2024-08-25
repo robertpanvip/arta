@@ -1,5 +1,6 @@
 import Shape, {ShapeConfig} from "../core/Shape.ts";
 import Context from "../core/Context.ts";
+import Path2D from "../core/Path2D.ts";
 import {CanvasStyle} from "../core/interface.ts";
 
 export interface PathConfig extends ShapeConfig, Partial<CanvasStyle> {
@@ -14,7 +15,7 @@ class Path extends Shape {
 
     constructor({d, ...rest}: PathConfig) {
         super(rest);
-        d = new Path2D(d)
+        d = new Path2D(d);
         this.path = d;
         this.style = {
             ...rest,
@@ -36,7 +37,6 @@ class Path extends Shape {
                 ctx.stroke(path)
             })
         }
-
         if (this.style.fillStyle) {
             paths.forEach(path => {
                 ctx.fill(path)

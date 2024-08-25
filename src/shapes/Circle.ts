@@ -1,5 +1,6 @@
 import {RectangleLike} from "../core/interface.ts";
 import Ellipse from "./Ellipse";
+import Path2D from '../core/Path2D.ts'
 
 type EllipseConfig = {
     cx: number;//CX属性定义的圆中心的x坐标

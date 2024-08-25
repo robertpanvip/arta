@@ -1,7 +1,8 @@
-import Group from "./Group.ts";
-import Context, {ContextAttrs} from "./Context.ts";
-import {PointLike} from "./interface.ts";
-import {trapEvents} from "./Event.ts";
+import Group from "./Group";
+import Context, {ContextAttrs} from "./Context";
+import {PointLike} from "./interface";
+import {trapEvents} from "./Event";
+import {PathContext} from "./Path2D";
 
 export type StageConfig = {
     container: HTMLElement
@@ -33,16 +34,16 @@ export default class Stage extends Group {
         this.context.offscreen.height = canvas.height;
         this.context.offscreen.style.width = canvas.style.width;
         this.context.offscreen.style.height = canvas.style.height;
-        const flush = () => {
-            requestAnimationFrame(() => {
-                this.render();
-                flush();
-            })
-        }
-        flush();
+        this.flush();
         trapEvents(canvas, this)
     }
 
+    flush = () => {
+        requestAnimationFrame(() => {
+            this.render();
+            this.flush();
+        })
+    }
 
     getIntersection(point: PointLike) {
         const color = this.context.getOffscreenColorByPoint(point);
@@ -70,6 +71,15 @@ export default class Stage extends Group {
         this.appendChild(node);
     }
 
+    clear() {
+        const children = this.children;
+        if (children) {
+            children.forEach(child=>{
+                this.removeChild(child)
+            })
+        }
+    }
+
     destroy(node: Group) {
         node.remove();
     }
@@ -79,14 +89,14 @@ export default class Stage extends Group {
     }
 
     render() {
-        const { width, height, ratio, context, colorMap, next } = this;
+        const {width, height, ratio, context, colorMap, next} = this;
         // 设置实际渲染像素
         const renderWidth = width * ratio;
         const renderHeight = height * ratio;
         context.canvas.width = renderWidth; // 实际渲染像素
         context.canvas.height = renderHeight; // 实际渲染像素
         context.offscreen.width = renderWidth;
-        context.offscreen.height =renderHeight;
+        context.offscreen.height = renderHeight;
         colorMap.clear();
         let order = 0;
         let max = 0;
@@ -103,6 +113,9 @@ export default class Stage extends Group {
         groups.sort((a, b) => a.order - b.order);
         groups.forEach(item => {
             context.save();
+            const path = new PathContext();
+            item.shape = path;
+            context.path = path;
             if (item.ownerViewBox) {
                 const {x, y, width, height} = item.ownerViewBox;
                 // 定义裁剪路径
