@@ -125,7 +125,7 @@ export interface CanvasEventMap<T extends EventTarget = EventTarget> {
     "selectstart": CanvasEvent<T>;
     "slotchange": CanvasEvent<T>;
     "stalled": CanvasEvent<T>;
-    "submit":  CanvasEvent<T,SubmitEvent>;
+    "submit": CanvasEvent<T, SubmitEvent>;
     "suspend": CanvasEvent<T>;
     "timeupdate": CanvasEvent<T>;
     "toggle": CanvasEvent<T>;
@@ -146,12 +146,48 @@ export interface CanvasEventMap<T extends EventTarget = EventTarget> {
     "wheel": CanvasEvent<T, WheelEvent>;
 }
 
+type Listener = {
+    eventName: keyof CanvasEventMap,
+    listener: CanvasEventListenerOrEventListenerObject<never, keyof CanvasEventMap> | null,
+    capture: boolean
+}
 
-export default class EventTarget extends window.EventTarget {
-    addEventListener<K extends keyof CanvasEventMap<typeof this>>(type: K, listener: CanvasEventListenerOrEventListenerObject<typeof this, K> | null, options?: AddEventListenerOptions | boolean) {
-        return super.addEventListener(type, listener as unknown as EventListenerOrEventListenerObject, options);
+export default class EventTarget {
+    listeners: Listener[] = []
+
+    dispatchEvent(e: Event): boolean {
+        this.listeners.forEach(listener => {
+            const trigger = () => {
+                if (typeof listener.listener === "object") {
+                    listener.listener?.handleEvent(e as never)
+                } else {
+                    listener.listener?.(e as never)
+                }
+            }
+
+            if (
+                (e.eventPhase == Event.CAPTURING_PHASE) === listener.capture
+                && listener.eventName === e.type
+            ) {
+                trigger();
+            }
+        })
+        return true;
     }
+
+    addEventListener<K extends keyof CanvasEventMap<typeof this>>(type: K, listener: CanvasEventListenerOrEventListenerObject<typeof this, K> | null, options?: AddEventListenerOptions | boolean) {
+        const capture = typeof options === "boolean" ? options : (options?.capture || false)
+        this.listeners.push({
+            eventName: type,
+            listener: listener as never,
+            capture,
+        })
+    }
+
     removeEventListener<K extends keyof CanvasEventMap<typeof this>>(type: K, listener: CanvasEventListenerOrEventListenerObject<typeof this, K> | null, options?: AddEventListenerOptions | boolean) {
-        return super.removeEventListener(type, listener as unknown as EventListenerOrEventListenerObject, options);
+        const capture = typeof options === "boolean" ? options : (options?.capture || false)
+        this.listeners.filter(item => {
+            return !(item.eventName === type && item.listener === listener && item.capture === capture)
+        })
     }
 }

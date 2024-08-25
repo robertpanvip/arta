@@ -133,10 +133,10 @@ export function getMousePoint(e: Event) {
 
 export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
 
-    function createEvent<K extends keyof CanvasEventMap>(type: K, target: Group | null, native: Event, isCapture: boolean) {
+    function createEvent<K extends keyof CanvasEventMap>(type: K, target: Group | null, native: Event) {
         const event = new CanvasEvent<Group>(type, {bubbles: true});
         event.target = target || null;
-        event.eventPhase = isCapture ? Event.CAPTURING_PHASE : Event.BUBBLING_PHASE;
+        //event.eventPhase = isCapture ? Event.CAPTURING_PHASE : Event.BUBBLING_PHASE;
         event.nativeEvent = native;
         const point = getMousePoint(native);
         if (point) {
@@ -146,7 +146,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         return event as CanvasEventMap<Group>[K];
     }
 
-    const callback = (e: Event, isCapture: boolean) => {
+    const callback = (e: Event) => {
         const time = performance.now();
 
         let group: Group = that;
@@ -166,7 +166,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
             group = that.getIntersection(position);
             t5 = performance.now();
         }
-        const evt = createEvent(e.type as keyof CanvasEventMap, group || null, e, isCapture);
+        const evt = createEvent(e.type as keyof CanvasEventMap, group || null, e);
         const t6 = performance.now();
         dispatchEvent(evt)
         const env = performance.now();
@@ -179,8 +179,7 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         }
     }
     EventNames.forEach(type => {
-        //canvas.addEventListener(type, (e) => callback(e, true), true);
-        canvas.addEventListener(type, (e) => callback(e, false), false);
+        canvas.addEventListener(type, (e) => callback(e), true);
     })
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -192,10 +191,10 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         y: 0
     }
 
-    function onMouseEvent(e: MouseEvent, isCapture: boolean) {
+    function onMouseEvent(e: MouseEvent) {
 
         if (dragging) {
-            const ev = createEvent("drag", dragging, e, isCapture)
+            const ev = createEvent("drag", dragging, e)
             ev.dx = (e.x - tmp.x);
             ev.dy = (e.y - tmp.y);
             if (dragging.draggable) {
@@ -210,14 +209,14 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
             const current = that.getIntersection(position);
 
             if (current !== previous) {
-                dispatchEvent(createEvent("mouseleave", previous, e, isCapture));
-                dispatchEvent(createEvent("mouseenter", current, e, isCapture))
+                dispatchEvent(createEvent("mouseleave", previous, e));
+                dispatchEvent(createEvent("mouseenter", current, e))
             }
             previous = current;
             if (dragStart === current) {
                 dragging = current;
                 dragging.order = that.order + 1;
-                const ev = createEvent("dragstart", current, e, isCapture)
+                const ev = createEvent("dragstart", current, e)
                 ev.dx = (e.x - tmp.x);
                 ev.dy = (e.y - tmp.y);
                 if (dragging.draggable) {
@@ -232,9 +231,9 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         dragStart = null;
     }
 
-    function onMouseUpEvent(e: MouseEvent, isCapture: boolean) {
+    function onMouseUpEvent(e: MouseEvent) {
         if (dragging) {
-            const ev = createEvent("dragend", dragging, e, isCapture);
+            const ev = createEvent("dragend", dragging, e);
             ev.dx = (e.x - tmp.x);
             ev.dy = (e.y - tmp.y);
             if (dragging.draggable) {
@@ -256,10 +255,10 @@ export function trapEvents(canvas: HTMLCanvasElement, that: Stage) {
         tmp.y = e.y;
     }
 
-    canvas.addEventListener('mouseleave', (e) => onMouseEvent(e, true), true)
-    document.addEventListener('mousemove', (e) => onMouseEvent(e, true), true)
+    canvas.addEventListener('mouseleave', (e) => onMouseEvent(e), true)
+    document.addEventListener('mousemove', (e) => onMouseEvent(e), true)
 
-    document.addEventListener('mouseup', (e) => onMouseUpEvent(e, true), true)
+    document.addEventListener('mouseup', (e) => onMouseUpEvent(e), true)
     canvas.addEventListener('mousedown', (e) => onMouseDownEvent(e), true)
 }
 
@@ -275,19 +274,18 @@ export function dispatchEvent(event: CanvasEvent<Group>): boolean {
             paths.push(target)
         }
     }
-    const phase = event.eventPhase;
-    if (phase !== Event.CAPTURING_PHASE) {
-        paths.reverse().forEach(path => {
-            if (event.bubbles) {
-                path.dispatchEvent(event)
-            }
-        })
-    } else {
-        paths.forEach(path => {
-            if (event.bubbles) {
-                path.dispatchEvent(event)
-            }
-        })
-    }
+    paths.slice().reverse().forEach(path => {
+        if (event.bubbles) {
+            event.eventPhase = Event.BUBBLING_PHASE
+            path.dispatchEvent(event)
+        }
+    })
+
+    paths.forEach(path => {
+        if (event.bubbles) {
+            event.eventPhase = Event.CAPTURING_PHASE
+            path.dispatchEvent(event)
+        }
+    })
     return true;
 }

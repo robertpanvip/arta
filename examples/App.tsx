@@ -151,6 +151,31 @@ function App() {
         text.style.maxWidth = 50
         addClickEvent(text)
     }
+
+    const handleEvent=()=>{
+        stageRef.current!.clear();
+        const item = new Arta.Rect();
+        item.addEventListener('click',()=>{
+            console.log('parent-冒泡')
+        },true)
+        item.addEventListener('click',()=>{
+            console.log('parent-捕获')
+        },false)
+
+        const item2 = new Arta.Rect({
+            width: 200,
+            height: 100,
+        });
+        item2.addEventListener('click',()=>{
+            console.log('child-冒泡')
+        },true)
+        item2.addEventListener('click',()=>{
+            console.log('child-捕获')
+        },false)
+
+        item.appendChild(item2)
+        stageRef.current!.add(item)
+    }
     return (
         <div>
             <div className="btns">
@@ -162,6 +187,7 @@ function App() {
                 <button onClick={handlePolygon}>Polygon</button>
                 <button onClick={handleRect}>Rect</button>
                 <button onClick={handleText}>Text</button>
+                <button onClick={handleEvent}>Rect-Event</button>
             </div>
 
             <div className='box' ref={ref}>
